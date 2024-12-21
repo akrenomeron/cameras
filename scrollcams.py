@@ -22,7 +22,9 @@ import tkinter as tk
 import pyautogui as pg
 import time
 import pygetwindow
+import keyboard
 from PIL import Image
+
 #gets camera frames
 class CaptureCam(QThread):
     ImageUpdate = pyqtSignal(QImage)
@@ -37,15 +39,9 @@ class CaptureCam(QThread):
 
         if capture.isOpened():
             while self.threadActive:
-                #
+                #read frames
                 ret, frame = capture.read()
-                #rotating cameras
-                if self.url == 'http://192.168.1.99:8080/stream':
-                    frame = cv2.rotate(frame, cv2.ROTATE_180)
-                #elif self.url == "http://192.168.1.99:8084/stream":
-                 #   frame = cv2.rotate(frame, cv2.ROTATE_180)
-                #elif self.url == "http://192.168.1.99:8086/stream":
-                    #frame = cv2.rotate(frame, cv2.ROTATE_180)
+
                 # frame setup
                 if ret:
                     height, width, channels = frame.shape
@@ -70,7 +66,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         #get camera streams
-        self.url_1 = 'http://192.168.1.99:8080/stream'
+        self.url_1 = 0
+        #self.url_1 = 'http://192.168.1.99:8080/stream'
         self.url_2 = "http://192.168.1.99:8082/stream"
         self.url_3 = "http://192.168.1.99:8084/stream"
         self.url_4 = "http://192.168.1.99:8086/stream" #photogrammetry cam
@@ -84,25 +81,48 @@ class MainWindow(QMainWindow):
 
         self.list_cameras = {}
         self.cams_stream = {self.url_1, self.url_2, self.url_3, self.url_4, self.url_5, self.url_6}
+        self.index = 0
 
-        self.camera_1 = QLabel()
-        self.camera_1.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        self.camera_1.setScaledContents(True)
-        self.camera_1.installEventFilter(self)
-        self.camera_1.setObjectName("Camera_1")
-        self.list_cameras["Camera_1"] = "Normal"
+        while True:
+            if keyboard.is_pressed('right'):
+                if self.index < len(self.cams_stream) - 1:
+                    index += 1
+                    self.QScrollArea_1.setWidget(self.cams_stream[index])
+                if self.index > len(self.cams_stream) - 1:
+                    self.index = 0
+                    self.QScrollArea_1.setWidget(self.cams_stream[index])
+            if keyboard.is_pressed('left'):
+                if self.index > 0:
+                    index-=1
+                    self.QScrollArea_1.setWidget(self.cams_stream[index])
+                if self.index < 0:
+                    self.QScrollArea_1.setWidget(self.cams_stream[index])
+                    self.camera_1 = QLabel()
+            self.camera_1.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+            self.camera_1.setScaledContents(True)
+            self.camera_1.installEventFilter(self)
+            self.camera_1.setObjectName("Camera_1")
+            self.list_cameras["Camera_1"] = "Normal"
 
-        self.QScrollArea_1 = QScrollArea()
-        self.QScrollArea_1.setBackgroundRole(QPalette.Dark)
-        self.QScrollArea_1.setWidgetResizable(True)
-        self.QScrollArea_1.setWidget(self.camera_1)
+            self.QScrollArea_1 = QScrollArea()
+            self.QScrollArea_1.setBackgroundRole(QPalette.Dark)
+            self.QScrollArea_1.setWidgetResizable(True)
+            self.QScrollArea_1.setWidget(self.camera_1)
 
-        #connects to ImageUpdate to keep updating the frames
-        self.CaptureCam_1 = CaptureCam(self.url_1)
-        self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
+            self.camera1_label = QLabel("un", self)
+            self.camera1_label.setStyleSheet("color: #F1F6FD")
+            self.camera1_label.setAlignment(Qt.AlignCenter)
 
-        #.start() runs the .run() function in CaptureCam that changes frame settings
-        self.CaptureCam_1.start()
+            #setup UI call
+            self.__SetupUI()
+
+            #connects to ImageUpdate to keep updating the frames
+            self.CaptureCam_1 = CaptureCam(self.url_1)
+            self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
+
+            #.start() runs the .run() function in CaptureCam that changes frame settings
+            self.CaptureCam_1.start()
+
 
     def __SetupUI(self):
         grid_layout = QGridLayout()
