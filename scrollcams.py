@@ -80,48 +80,54 @@ class MainWindow(QMainWindow):
         #self.url_4 = 0
 
         self.list_cameras = {}
-        self.cams_stream = {self.url_1, self.url_2, self.url_3, self.url_4, self.url_5, self.url_6}
+        self.cams_stream = [self.url_1, self.url_2, self.url_3, self.url_4, self.url_5, self.url_6]
+        self.camera = self.url_1
+
+        self.camera_1 = QLabel()
+        self.camera_1.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.camera_1.setScaledContents(True)
+        self.camera_1.installEventFilter(self)
+        self.camera_1.setObjectName("Camera_1")
+        self.list_cameras["Camera_1"] = "Normal"
+
+        self.QScrollArea_1 = QScrollArea()
+        self.QScrollArea_1.setBackgroundRole(QPalette.Dark)
+        self.QScrollArea_1.setWidgetResizable(True)
+        self.QScrollArea_1.setWidget(self.camera_1)
+
+        self.camera1_label = QLabel("un", self)
+        self.camera1_label.setStyleSheet("color: #F1F6FD")
+        self.camera1_label.setAlignment(Qt.AlignCenter)
+
+        #setup UI call
+        self.__SetupUI()
+
+        #connects to ImageUpdate to keep updating the frames
+        self.CaptureCam_1 = CaptureCam(self.camera)
+        self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
         self.index = 0
+        if keyboard.is_pressed('right'):
+            if self.index < len(self.cams_stream) - 1:
+                self.index += 1
+                print(self.index)
+                self.camera = self.cams_stream[self.index]
 
-        while True:
-            if keyboard.is_pressed('right'):
-                if self.index < len(self.cams_stream) - 1:
-                    index += 1
-                    self.QScrollArea_1.setWidget(self.cams_stream[index])
-                if self.index > len(self.cams_stream) - 1:
-                    self.index = 0
-                    self.QScrollArea_1.setWidget(self.cams_stream[index])
-            if keyboard.is_pressed('left'):
-                if self.index > 0:
-                    index-=1
-                    self.QScrollArea_1.setWidget(self.cams_stream[index])
-                if self.index < 0:
-                    self.QScrollArea_1.setWidget(self.cams_stream[index])
-                    self.camera_1 = QLabel()
-            self.camera_1.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-            self.camera_1.setScaledContents(True)
-            self.camera_1.installEventFilter(self)
-            self.camera_1.setObjectName("Camera_1")
-            self.list_cameras["Camera_1"] = "Normal"
+            if self.index > len(self.cams_stream) - 1:
+                self.index = 0
+                self.camera = self.cams_stream[self.index]
 
-            self.QScrollArea_1 = QScrollArea()
-            self.QScrollArea_1.setBackgroundRole(QPalette.Dark)
-            self.QScrollArea_1.setWidgetResizable(True)
-            self.QScrollArea_1.setWidget(self.camera_1)
+        if keyboard.is_pressed('left'):
+            if self.index > 0:
+                self.index-=1
+                self.camera = self.cams_stream[self.index]
 
-            self.camera1_label = QLabel("un", self)
-            self.camera1_label.setStyleSheet("color: #F1F6FD")
-            self.camera1_label.setAlignment(Qt.AlignCenter)
+            if self.index < 0:
+                self.index = 0
+                self.camera = self.cams_stream[self.index]
+        
 
-            #setup UI call
-            self.__SetupUI()
-
-            #connects to ImageUpdate to keep updating the frames
-            self.CaptureCam_1 = CaptureCam(self.url_1)
-            self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
-
-            #.start() runs the .run() function in CaptureCam that changes frame settings
-            self.CaptureCam_1.start()
+        #.start() runs the .run() function in CaptureCam that changes frame settings
+        self.CaptureCam_1.start()
 
 
     def __SetupUI(self):
