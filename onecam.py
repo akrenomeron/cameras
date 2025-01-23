@@ -102,51 +102,25 @@ class MainWindow(QMainWindow):
         self.camera1_label.setStyleSheet("color: #F1F6FD")
         self.camera1_label.setAlignment(Qt.AlignCenter)
 
-        self.camera_2 = QLabel()
-        self.camera_2.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        self.camera_2.setScaledContents(True)
-        self.camera_2.installEventFilter(self)
-        self.camera_2.setObjectName("Camera_2")
-        self.list_cameras["Camera_2"] = "Normal"
-
-        self.QScrollArea_2 = QScrollArea()
-        self.QScrollArea_2.setBackgroundRole(QPalette.Dark)
-        self.QScrollArea_2.setWidgetResizable(True)
-        self.QScrollArea_2.setWidget(self.camera_1)
-
-        self.camera2_label = QLabel("deux", self)
-        self.camera2_label.setStyleSheet("color: #F1F6FD")
-        self.camera2_label.setAlignment(Qt.AlignCenter)
-
         #setup UI call
         self.__SetupUI()
 
         #connects to ImageUpdate to keep updating the frames
-        self.CaptureCam_1 = CaptureCam(self.url_1)
+        self.CaptureCam_1 = CaptureCam(self.cams_stream[self.index])
         self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
-        self.CaptureCam_2 = CaptureCam(self.url_2)
-        self.CaptureCam_2.ImageUpdate.connect(lambda image: self.ShowCamera2(image))
 
         #.start() runs the .run() function in CaptureCam that changes frame settings
         self.CaptureCam_1.start()
-        self.CaptureCam_2.start()
             
     def __SetupUI(self):
         grid_layout = QGridLayout()
         grid_layout.setContentsMargins(0, 0, 0, 0)
         grid_layout.addWidget(self.QScrollArea_1, 0, 0)
         grid_layout.addWidget(self.camera1_label, 1, 0)
-        grid_layout.addWidget(self.QScrollArea_2, 0, 0)
-        grid_layout.addWidget(self.camera2_label, 1, 0)
 
 
         self.widget = QWidget(self)
         self.widget.setLayout(grid_layout)
-
-        self.QScrollArea_1.show()
-        self.QScrollArea_2.hide()
-        self.camera1_label.show()
-        self.camera2_label.hide()
 
         self.setCentralWidget(self.widget)
         self.setMinimumSize(1570, 1440)
@@ -159,25 +133,16 @@ class MainWindow(QMainWindow):
     def ShowCamera1(self, frame: QImage) -> None:
         self.camera_1.setPixmap(QPixmap.fromImage(frame))
 
-    @QtCore.pyqtSlot()
-    def ShowCamera2(self, frame: QImage) -> None:
-        self.camera_2.setPixmap(QPixmap.fromImage(frame))
-
     def eventFilter(self, source: QObject, event: QEvent):
         if event.type() == QtCore.QEvent.MouseButtonDblClick:
             print("double click")
             self.index = (self.index + 1) % len(self.cams_stream)
-            #print(self.cams_stream[self.index])
-            if self.index == 1:
-                self.QScrollArea_1.hide()
-                self.QScrollArea_2.show()
-                self.camera1_label.hide()
-                self.camera2_label.show()
-            #self.CaptureCam_1.stop()
-            #self.CaptureCam_1 = CaptureCam(self.cams_stream[self.index])
-            #self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
-            #self.CaptureCam_1.start()
-            #print(self.index)
+            print(self.cams_stream[self.index])
+            self.CaptureCam_1.stop()
+            self.CaptureCam_1 = CaptureCam(self.cams_stream[self.index])
+            self.CaptureCam_1.ImageUpdate.connect(lambda image: self.ShowCamera1(image))
+            self.CaptureCam_1.start()
+            print(self.index)
             return True
         else:
             return super(MainWindow, self).eventFilter(source, event)
@@ -185,8 +150,6 @@ class MainWindow(QMainWindow):
     def close(self, event):
         if self.CaptureCam_1.isRunning():
             self.CaptureCam_1.quit()
-        if self.CaptureCam_2.isRunning():
-            self.CaptureCam_2.quit()
         event.accept()
 
 
