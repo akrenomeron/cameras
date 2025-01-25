@@ -159,6 +159,7 @@ def main():
     # It handles widget specific initialization, finalization.
     # For any GUI application using Qt, there is precisely one QApplication object
     app = QApplication(sys.argv)
+    print("start cam")
     # Create an instance of the class MainWindow.
     window = MainWindow()
     # Show the window.
