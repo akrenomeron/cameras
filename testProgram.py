@@ -15,14 +15,14 @@ import threading
 width, height = 1300, 1100
 
 #camera 1
-url1 = 1
-cam1 = cv2.VideoCapture(url1)
+url1 = 0
+cam1 = cv2.VideoCapture(1)
 cam1.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam1.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 #camera 2
-url2 = 0
-cam2 = cv2.VideoCapture(url2)
+url2 = 1
+cam2 = cv2.VideoCapture(0)
 cam2.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam2.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -37,6 +37,7 @@ cam1Display.pack()
 
 #creates second window
 def new_window():
+    print("opening new window")
     global cam2Display #can be accessed throughout program
     check = False #easier for opening both cameras without crashing
 
@@ -48,6 +49,7 @@ def new_window():
     #create camera display on 'displayBottom'
     cam2Display = Label(displayBottom)
     cam2Display.pack()
+    print("made second display")
 
     #changes check to open camera streams on windows
     check = True
@@ -58,6 +60,7 @@ def new_window():
 #runs first cam stream
 def open_camera():
     #read VideoCapture
+    print("getting frame 1")
     ret, frame1 = cam1.read()
 
     #updates image settings
@@ -73,6 +76,7 @@ def open_camera():
 #runs second cam stream
 def open_camera2():
     #read VideoCapture
+    print("getting frame 2")
     ret2, frame2 = cam2.read()
 
     #updates image settings
@@ -105,7 +109,7 @@ def screenshot():
                 frameBottom = pyscreeze.screenshot(region=windowBottom.box)
                 frameBottom.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
                 frameBottom.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
-                
+
                 pass
 
         if keyboard.read_key() == "q":
