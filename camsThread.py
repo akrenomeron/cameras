@@ -1,12 +1,16 @@
 import threading
 import onecam
+import camsgui
 import photosphereSS
 
-#camsStream = threading.Thread(target=onecam.main, args = ())
-#screenshot = threading.Thread(target=photosphereSS.main, args = ())
+camsStream = threading.Thread(target=onecam.main, args = (),)
+#camsgui = threading.Thread(target=camsgui.main, args= (),)
+#screenshot = threading.Thread(target=photosphereSS.main, args = (),)
 
-#camsStream.start()
 #screenshot.start()
+camsStream.start()
+#camsgui.start()
 
-#camsStream.join()
-#ssscreenshot.join()
+#screenshot.join()
+camsStream.join()
+#camsgui.join()
