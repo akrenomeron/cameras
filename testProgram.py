@@ -1,51 +1,123 @@
-# import the require packages.
-import cv2
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, \
-    QLabel, QGridLayout, QScrollArea, QSizePolicy, QWidget, QPushButton
-from PyQt5.QtGui import QPixmap, QIcon, QImage, QPalette
-from PyQt5.QtCore import QThread, pyqtSignal, Qt, QEvent, QObject
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5 import QtCore
-import sys
-from PyQt5 import *
-from PyQt5 import QtWidgets
-import cv2
-import sys
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-import numpy as np
 from tkinter import *
 import tkinter as tk
-import pyautogui as pg
-import time
-from PIL import Image
+import cv2
+from PIL import Image, ImageTk
+import pyscreenshot
+import pygetwindow as gw
+import pyscreeze
+import keyboard
+import threading
 
-def CaptureCam(url):
-    ImageUpdate = pyqtSignal(QImage)
+'''
+-> crop screenshots
+'''
 
-    #init variables
-    threadActive = True
-    capture = cv2.VideoCapture(url)
+width, height = 1300, 1100
 
-    if capture.isOpened():
-        while threadActive:
-            ret, frame = capture.read() #gets videocapture cams stream
+#camera 1
+url1 = 1
+cam1 = cv2.VideoCapture(url1)
+cam1.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cam1.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-            if ret:
-                cv2.imshow('frame', frame)
-                if cv2.waitKey(1) == ord('q'):
-                    break
+#camera 2
+url2 = 0
+cam2 = cv2.VideoCapture(url2)
+cam2.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cam2.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-            else:
-                break 
-    capture.release()
-    
-url_1 = 0
-url_2 = 1
+#create first window 
+displayTop = Tk()
+displayTop.title('top photosphere')
+displayTop.bind('<Escape>', lambda e: displayTop.quit())
 
-camera_1 = QLabel()
-camera_1.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-camera_1.setScaledContents(True)
-camera_1.installEventFilter(self)
+#create camera display on window 'displayTop'
+cam1Display = Label(displayTop)
+cam1Display.pack()
+
+#creates second window
+def new_window():
+    global cam2Display #can be accessed throughout program
+    check = False #easier for opening both cameras without crashing
+
+    #make second window
+    displayBottom = tk.Toplevel()
+    displayBottom.title('bottom photosphere')
+    displayBottom.bind('<Escape>', lambda e: displayBottom.quit())
+
+    #create camera display on 'displayBottom'
+    cam2Display = Label(displayBottom)
+    cam2Display.pack()
+
+    #changes check to open camera streams on windows
+    check = True
+    if check:
+        open_camera() #runs first camera stream
+        open_camera2() #runs second camera stream
+
+#runs first cam stream
+def open_camera():
+    #read VideoCapture
+    ret, frame1 = cam1.read()
+
+    #updates image settings
+    opencv_image1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGBA)
+    captured_image1 = Image.fromarray(opencv_image1)
+    photo_image1 = ImageTk.PhotoImage(image = captured_image1)
+    cam1Display.photo_image1 = photo_image1
+    cam1Display.configure(image=photo_image1)
+
+    #updates frame
+    cam1Display.after(10, open_camera)
+
+#runs second cam stream
+def open_camera2():
+    #read VideoCapture
+    ret2, frame2 = cam2.read()
+
+    #updates image settings
+    opencv_image2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGBA)
+    captured_image2 = Image.fromarray(opencv_image2)
+    photo_image2 = ImageTk.PhotoImage(image = captured_image2)
+    cam2Display.photo_image2 = photo_image2
+    cam2Display.configure(image=photo_image2)
+
+    #updates frames
+    cam2Display.after(10, open_camera2)
+
+#screenshots frames when ready
+def screenshot():
+    while True:
+        #print(keyboard.read_key()) ###double checks if keyboard reading works
+
+        #use 'p' to take screenshot
+        if keyboard.read_key() == "p":
+            #finds window that needs screenshot
+            windowTop = gw.getWindowsWithTitle('top photosphere')[0]
+            windowBottom = gw.getWindowsWithTitle('bottom photosphere')[0]
+
+            #takes screenshot, saves, and displays
+            if windowTop and windowBottom:
+                frameTop = pyscreeze.screenshot(region=windowTop.box)
+                frameTop.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedTop.png')
+                frameTop.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedTop.png')
+
+                frameBottom = pyscreeze.screenshot(region=windowBottom.box)
+                frameBottom.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
+                frameBottom.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
+                
+                pass
+
+        if keyboard.read_key() == "q":
+            break
+
+#button to open cams
+openButton = Button(displayTop, text = "open cams", command=new_window)
+openButton.pack()
+
+#threads screenshot function to run simultaneously with windows
+screenshotThread = threading.Thread(target=screenshot, daemon=True)
+screenshotThread.start()
+
+#runs first window
+displayTop.mainloop()
