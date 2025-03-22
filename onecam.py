@@ -67,14 +67,14 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         #get camera streams
-        self.url_1 = 0
-        #self.url_1 = 'http://192.168.1.99:8080/stream'
-        #self.url_2 = "http://192.168.1.99:8082/stream"
-        self.url_2 = 1
+        #self.url_1 = 0
+        self.url_1 = 'http://192.168.1.99:8080/stream'
+        self.url_2 = "http://192.168.1.99:8082/stream"
+        #self.url_2 = 1
         self.url_3 = "http://192.168.1.99:8084/stream"
-        self.url_4 = "http://192.168.1.99:8086/stream" #photogrammetry cam
-        self.url_5 =  "http://192.168.1.99:8088/stream"
-        self.url_6 = "http://192.168.1.99:8090/stream"
+        #self.url_4 = "http://192.168.1.99:8086/stream" #photogrammetry cam
+        #self.url_5 =  "http://192.168.1.99:8088/stream"
+        #self.url_6 = "http://192.168.1.99:8090/stream"
 
         #self.url_1 = 0
         #self.url_2 = 0
@@ -82,7 +82,8 @@ class MainWindow(QMainWindow):
         #self.url_4 = 0
 
         self.list_cameras = {}
-        self.cams_stream = [self.url_1, self.url_2, self.url_3, self.url_4, self.url_5, self.url_6]
+        self.cams_stream = [self.url_1, self.url_2, self.url_3]
+        #self.cams_stream = [self.url_1, self.url_2, self.url_3, self.url_4, self.url_5, self.url_6]
         #self.camera = self.url_1
         self.index = 0
 

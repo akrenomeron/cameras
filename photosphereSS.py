@@ -2,7 +2,6 @@ from tkinter import *
 import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
-import pyscreenshot
 import pygetwindow as gw
 import pyscreeze
 import keyboard
@@ -12,13 +11,14 @@ width, height = 1300, 1100
 
 #camera 1
 url1 = 0
-cam1 = cv2.VideoCapture(1)
+#cam1 = cv2.VideoCapture(0)
+cam1 = cv2.VideoCapture('http://192.168.1.99:8080/stream')
 cam1.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam1.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 #camera 2
 url2 = 1
-cam2 = cv2.VideoCapture(1)
+cam2 = cv2.VideoCapture('http://192.168.1.99:8084/stream')
 cam2.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam2.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -107,8 +107,8 @@ def screenshot():
                 topright = 1287
                 topbottom = 1081
                 frameTop = frameTop.crop((topleft, toptop, topright, topbottom))
-                frameTop.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedTop' + str(counter) + '.png')
-                frameTop.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedTop' + str(counter) + '.png')
+                frameTop.save('C:/Users/SFHSR/OneDrive/Desktop/videoframes/savedTop' + str(counter) + '.png')
+                frameTop.show('C:/Users/SFHSR/OneDrive/Desktop/videoframes/savedTop' + str(counter) + '.png')
                 print("showing")
 
                 frameBottom = pyscreeze.screenshot(region=windowBottom.box)
@@ -119,13 +119,13 @@ def screenshot():
                 bottomright = 1290
                 bottombottom = 1082
                 frameBottom = frameBottom.crop((bottomleft, bottomtop, bottomright, bottombottom))
-                frameBottom.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom' + str(counter) + '.png')
-                frameBottom.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom' + str(counter) + '.png')
+                frameBottom.save('C:/Users/SFHSR/OneDrive/Desktop/videoframes/savedBottom' + str(counter) + '.png')
+                frameBottom.show('C:/Users/SFHSR/OneDrive/Desktop/videoframes/savedBottom' + str(counter) + '.png')
                 print("showing")
 
                 print(counter)
                 #frameBottom = pyscreeze.screenshot(region=windowBottom.box)
-                #frameBottom.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
+                #frameBottom.save('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')                                                                                            
                 #frameBottom.show('C:/Users/alyss/OneDrive/Desktop/videoframes/savedBottom.png')
 
                 pass
